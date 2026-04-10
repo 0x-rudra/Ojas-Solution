@@ -48,46 +48,47 @@ export default function CommunityPage() {
         {/* Room Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-4">
           {mockRooms.map((room, i) => (
-            <motion.div 
-              key={room.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className={`glass-card p-6 border flex flex-col justify-between group cursor-pointer hover:shadow-[0_15px_40px_rgba(0,0,0,0.6)] transition-all duration-500 hover:-translate-y-1 ${room.border} hover:bg-white/5 relative overflow-hidden`}
-            >
-              <div className={`absolute top-0 right-0 w-32 h-32 ${room.bg} rounded-full blur-[40px] opacity-20 group-hover:opacity-60 transition-opacity duration-500`} />
-              
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <span className={`px-2 py-1 rounded-md text-[10px] uppercase font-black tracking-widest border border-white/10 ${room.color} bg-white/5`}>
-                    {room.tag}
-                  </span>
-                  {room.active && (
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-alert-white animate-pulse">
-                      <div className="w-2 h-2 rounded-full bg-alert-white" /> LIVE
+            <Link href={`/community/${room.id}`} key={room.id} className="block h-full">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={`glass-card p-6 border flex flex-col justify-between group cursor-pointer hover:shadow-[0_15px_40px_rgba(0,0,0,0.6)] transition-all duration-500 hover:-translate-y-1 ${room.border} hover:bg-white/5 relative overflow-hidden h-full`}
+              >
+                <div className={`absolute top-0 right-0 w-32 h-32 ${room.bg} rounded-full blur-[40px] opacity-20 group-hover:opacity-60 transition-opacity duration-500`} />
+                
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className={`px-2 py-1 rounded-md text-[10px] uppercase font-black tracking-widest border border-white/10 ${room.color} bg-white/5`}>
+                      {room.tag}
                     </span>
-                  )}
+                    {room.active && (
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-alert-white animate-pulse">
+                        <div className="w-2 h-2 rounded-full bg-alert-white" /> LIVE
+                      </span>
+                    )}
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-aqua transition-colors pr-4">{room.title}</h3>
+                  
+                  <div className="flex items-center gap-2 text-text-muted text-sm mt-4">
+                    <Users size={16} /> 
+                    <span className="font-bold text-white/90">{room.participants}</span> active healers
+                  </div>
                 </div>
-                
-                <h3 className="text-xl font-bold text-white mb-2 leading-tight group-hover:text-aqua transition-colors pr-4">{room.title}</h3>
-                
-                <div className="flex items-center gap-2 text-text-muted text-sm mt-4">
-                  <Users size={16} /> 
-                  <span className="font-bold text-white/90">{room.participants}</span> active healers
-                </div>
-              </div>
 
-              <div className="mt-8 pt-4 border-t border-border/30 flex justify-between items-center relative z-10">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-obsidian border border-border/50 flex flex-col items-center justify-center text-[10px] shadow-sm z-30">🦁</div>
-                  <div className="w-8 h-8 rounded-full bg-obsidian border border-border/50 flex flex-col items-center justify-center text-[10px] shadow-sm z-20">🌿</div>
-                  <div className="w-8 h-8 rounded-full bg-obsidian border border-border/50 flex flex-col items-center justify-center text-[10px] shadow-sm z-10">🛡️</div>
+                <div className="mt-8 pt-4 border-t border-border/30 flex justify-between items-center relative z-10">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-obsidian border border-border/50 flex flex-col items-center justify-center text-[10px] shadow-sm z-30">🦁</div>
+                    <div className="w-8 h-8 rounded-full bg-obsidian border border-border/50 flex flex-col items-center justify-center text-[10px] shadow-sm z-20">🌿</div>
+                    <div className="w-8 h-8 rounded-full bg-obsidian border border-border/50 flex flex-col items-center justify-center text-[10px] shadow-sm z-10">🛡️</div>
+                  </div>
+                  <button className={`flex items-center gap-2 font-bold text-sm ${room.color} group-hover:scale-105 transition-transform`}>
+                    Join Room <ArrowRight size={16} />
+                  </button>
                 </div>
-                <button className={`flex items-center gap-2 font-bold text-sm ${room.color} group-hover:scale-105 transition-transform`}>
-                  Join Room <ArrowRight size={16} />
-                </button>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 
