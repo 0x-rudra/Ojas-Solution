@@ -29,8 +29,8 @@ export function ChatInput({ input, setInput, isLoading, error, handleSubmit }: C
   };
 
   return (
-    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl p-4 md:p-8 pt-24 bg-linear-to-t from-ink-black via-ink-black/80 to-transparent z-20 flex justify-center pointer-events-none">
-      <div className="w-full max-w-3xl relative pointer-events-auto">
+    <div className="w-full">
+      <div className="w-full relative">
         {error && <p className="absolute -top-10 left-4 text-warning-white text-xs font-bold bg-warning-white/10 px-3 py-1.5 rounded-full backdrop-blur-md border border-warning-white/20 flex items-center gap-2"><AlertTriangle size={14} /> An error occurred securely connecting to AI.</p>}
 
         <form onSubmit={onSubmit} className="relative group">
