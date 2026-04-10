@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, MessageSquare, Users, Award, Bot, User, Info, Phone, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, MessageSquare, Users, Award, Bot, User, Info, Phone, X, LogOut } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useUser } from "@/lib/user-context";
@@ -14,7 +14,8 @@ function cn(...inputs: (string | undefined | null | false)[]) {
 
 export function Sidebar({ isOpen, setIsOpen, isMobile }: { isOpen: boolean, setIsOpen: (val: boolean) => void, isMobile: boolean }) {
   const pathname = usePathname();
-  const { user } = useUser();
+  const router = useRouter();
+  const { user, clearAllData } = useUser();
   const [isHovered, setIsHovered] = useState(false);
   const isExpanded = isOpen || (!isMobile && isHovered);
 
@@ -109,7 +110,36 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: { isOpen: boolean, setI
           })}
         </div>
 
-        <div className="mt-auto pt-4 pb-6 md:pb-4 border-t border-border/50 w-full px-3 md:px-2 shrink-0">
+        <div className="mt-auto pt-4 pb-6 md:pb-4 border-t border-border/50 w-full px-3 md:px-2 shrink-0 flex flex-col gap-2">
+          {user && (
+            <button
+              onClick={() => {
+                clearAllData();
+                if (isMobile) setIsOpen(false);
+                router.push('/');
+              }}
+              className={cn(
+                "flex items-center py-3 rounded-xl transition-colors text-alert-red hover:bg-alert-red/10 group relative w-full",
+                isExpanded ? "px-4 gap-4" : "justify-center px-0"
+              )}
+              title={!isExpanded ? "Log Out" : undefined}
+            >
+              <LogOut size={22} className="shrink-0 text-red-500" />
+              <span className={cn(
+                "font-medium whitespace-nowrap text-red-500",
+                !isExpanded && !isMobile ? "hidden" : "block"
+              )}>
+                Log Out
+              </span>
+              
+              {!isExpanded && !isMobile && (
+                <div className="absolute left-full ml-2 px-2 py-1 bg-obsidian border border-red-500/50 text-red-500 text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                  Log Out
+                </div>
+              )}
+            </button>
+          )}
+
           <Link
             href="/help"
             onClick={() => isMobile && setIsOpen(false)}
