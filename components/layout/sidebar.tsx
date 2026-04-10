@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Home, MessageSquare, Users, Award, Bot, User, Info, Phone, X } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useUser } from "@/lib/user-context";
 
 function cn(...inputs: (string | undefined | null | false)[]) {
   return twMerge(clsx(inputs));
@@ -13,17 +14,22 @@ function cn(...inputs: (string | undefined | null | false)[]) {
 
 export function Sidebar({ isOpen, setIsOpen, isMobile }: { isOpen: boolean, setIsOpen: (val: boolean) => void, isMobile: boolean }) {
   const pathname = usePathname();
+  const { user } = useUser();
   const [isHovered, setIsHovered] = useState(false);
   const isExpanded = isOpen || (!isMobile && isHovered);
 
-  const primaryItems = [
+  const allItems = [
     { name: "Home", path: "/", icon: Home },
     { name: "Feed", path: "/feed", icon: MessageSquare },
-    { name: "Rooms", path: "/community", icon: Users },
-    { name: "AI", path: "/ai", icon: Bot },
+    { name: "Ojas Circle", path: "/community", icon: Users },
+    { name: "Ojas AI", path: "/ai", icon: Bot },
     { name: "Me", path: "/profile", icon: User },
     { name: "About", path: "/about", icon: Info },
   ];
+
+  const primaryItems = user 
+    ? allItems.filter(item => item.name !== "Home")
+    : allItems.filter(item => item.name === "Home" || item.name === "About");
 
   return (
     <>
@@ -53,7 +59,7 @@ export function Sidebar({ isOpen, setIsOpen, isMobile }: { isOpen: boolean, setI
               "font-bold text-xl tracking-tight text-white whitespace-nowrap transition-all duration-300",
               !isExpanded && !isMobile ? "opacity-0 w-0 hidden" : "opacity-100 w-auto"
             )}>
-              Ojas Circle
+              OJAS
             </span>
           </Link>
           

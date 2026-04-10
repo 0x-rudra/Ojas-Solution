@@ -5,6 +5,8 @@ import { AnonymousOnboarding } from "@/components/auth/anonymous-onboarding";
 import { ShieldCheck, Leaf, BrainCircuit, MessageSquare, Activity, Shield, ArrowRight, Lock } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/lib/user-context";
 
 const TypewriterText = ({ text, delay = 0, className = "" }: { text: string, delay?: number, className?: string }) => {
   const [displayedText, setDisplayedText] = useState("");
@@ -35,9 +37,17 @@ const TypewriterText = ({ text, delay = 0, className = "" }: { text: string, del
 };
 
 export default function Home() {
+  const router = useRouter();
+  const { user } = useUser();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const { scrollYProgress } = useScroll();
   const yElement = useTransform(scrollYProgress, [0, 1], [0, 200]);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/feed");
+    }
+  }, [user, router]);
 
   return (
     <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-background relative overflow-x-hidden text-white w-full selection:bg-aqua selection:text-ink-black scroll-smooth">

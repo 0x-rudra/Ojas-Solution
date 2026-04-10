@@ -4,11 +4,15 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, User, Lock, Key, Shield, Copy, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useUser } from "@/lib/user-context";
 
 export default function AuthPage() {
+  const router = useRouter();
+  const { initializeUser } = useUser();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
@@ -38,6 +42,7 @@ export default function AuthPage() {
       console.log("Signing up with:", username, password);
       const code = generateBackupCode();
       setGeneratedBackupCode(code);
+      initializeUser(username, "🪷");
       setIsSignedUp(true);
     } else {
       // Simulate Login
@@ -46,7 +51,8 @@ export default function AuthPage() {
       } else {
         console.log("Logging in with:", username, password);
       }
-      // redirect or handle state here
+      initializeUser(username, "🪷");
+      router.push("/feed");
     }
   };
 
@@ -121,7 +127,7 @@ export default function AuthPage() {
                 </div>
 
                 <div className="w-full pt-4 border-t border-white/10">
-                  <Link href="/">
+                  <Link href="/feed">
                     <Button className="w-full bg-aqua hover:bg-aqua-light text-ink-black font-bold h-12 text-md rounded-full shadow-[0_0_20px_rgba(244,160,36,0.2)]">
                       Enter Ojas Circle <ArrowRight size={18} className="ml-2" />
                     </Button>
