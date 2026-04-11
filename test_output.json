@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "logs": [
+    "1. Creating test user...",
+    "User ID: c4894b6a-bd37-4a3b-9526-d8efd8509fec",
+    "2. Fetching a community...",
+    "Community ID: 11111111-1111-1111-1111-111111111111",
+    "3. Joining community...",
+    "Join result: {\"message\":\"Successfully joined the community\"}",
+    "4. Verifying communityMembers...",
+    "Member found count: 1",
+    "5. Sending message...",
+    "SendMessage Result: ID -> 4",
+    "6. Verifying messages length...",
+    "GetCommunityMessages length: 4"
+  ]
+}

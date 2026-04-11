@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, User, Lock, Key, Shield, Copy, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -19,40 +19,77 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [backupCodeInput, setBackupCodeInput] = useState("");
   const [useBackupCode, setUseBackupCode] = useState(false);
+  
+  // CSRF and Error states
+  const [csrfToken, setCsrfToken] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // States for Signup
   const [generatedBackupCode, setGeneratedBackupCode] = useState("");
   const [isSignedUp, setIsSignedUp] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const generateBackupCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 12; i++) {
-      if (i > 0 && i % 4 === 0) code += '-';
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
-  };
+  useEffect(() => {
+    // Fetch CSRF token on mount
+    fetch('/api/auth/csrf')
+      .then((res) => res.json())
+      .then((data) => setCsrfToken(data.csrfToken))
+      .catch((err) => console.error("Could not fetch CSRF token", err));
+  }, []);
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLogin) {
-      // Simulate Signup
-      console.log("Signing up with:", username, password);
-      const code = generateBackupCode();
-      setGeneratedBackupCode(code);
-      initializeUser(username, "🪷");
-      setIsSignedUp(true);
-    } else {
-      // Simulate Login
-      if (useBackupCode) {
-        console.log("Logging in with Backup Code:", username, backupCodeInput);
+    setErrorMsg("");
+    setIsLoading(true);
+
+    try {
+      if (!isLogin) {
+        // ACTUAL SIGNUP
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || "Failed to register");
+
+        // Success Signup
+        setGeneratedBackupCode(data.user.backupSecret);
+        initializeUser(data.user.username, "🪷", data.user.id);
+        setIsSignedUp(true);
       } else {
-        console.log("Logging in with:", username, password);
+        // ACTUAL LOGIN
+        if (useBackupCode) {
+          setErrorMsg("Backup code login is not yet implemented backend-side.");
+          setIsLoading(false);
+          return;
+        }
+
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || "Failed to login");
+
+        // Success Login
+        initializeUser(data.user.username, "🪷", data.user.id);
+        router.push("/feed");
       }
-      initializeUser(username, "🪷");
-      router.push("/feed");
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,7 +149,7 @@ export default function AuthPage() {
                 </div>
 
                 <div className="w-full bg-black/40 border border-white/10 rounded-lg p-4 flex flex-col items-center gap-3 relative group">
-                  <span className="text-2xl font-mono tracking-[0.2em] font-bold text-aqua">
+                  <span className="text-2xl font-mono tracking-[0.2em] font-bold text-aqua break-all">
                     {generatedBackupCode}
                   </span>
                   <Button 
@@ -144,6 +181,12 @@ export default function AuthPage() {
                 onSubmit={handleAuth}
                 className="space-y-5"
               >
+                {errorMsg && (
+                  <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm font-medium">
+                    {errorMsg}
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-text-secondary">Anonymous Username</Label>
                   <div className="relative">
@@ -155,6 +198,7 @@ export default function AuthPage() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 </div>
@@ -167,6 +211,7 @@ export default function AuthPage() {
                         type="button" 
                         onClick={() => setUseBackupCode(false)}
                         className="text-xs text-aqua hover:underline"
+                        disabled={isLoading}
                       >
                         Use Password Instead
                       </button>
@@ -180,6 +225,7 @@ export default function AuthPage() {
                         value={backupCodeInput}
                         onChange={(e) => setBackupCodeInput(e.target.value)}
                         required
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
@@ -192,6 +238,7 @@ export default function AuthPage() {
                           type="button" 
                           onClick={() => setUseBackupCode(true)}
                           className="text-xs text-text-muted hover:text-white transition-colors"
+                          disabled={isLoading}
                         >
                           Forgot Password?
                         </button>
@@ -208,11 +255,13 @@ export default function AuthPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                         minLength={6}
+                        disabled={isLoading}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors"
+                        disabled={isLoading}
                       >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
@@ -220,8 +269,8 @@ export default function AuthPage() {
                   </div>
                 )}
 
-                <Button type="submit" className="w-full h-12 bg-white text-black hover:bg-gray-200 font-bold rounded-xl mt-6 transition-all duration-300">
-                  {isLogin ? "Access Community" : "Create Anonymous Identity"}
+                <Button type="submit" disabled={isLoading} className="w-full h-12 bg-white text-black hover:bg-gray-200 font-bold rounded-xl mt-6 transition-all duration-300">
+                  {isLoading ? "Processing..." : (isLogin ? "Access Community" : "Create Anonymous Identity")}
                 </Button>
 
                 <div className="text-center mt-6 text-sm text-text-secondary">
@@ -233,6 +282,7 @@ export default function AuthPage() {
                       setUseBackupCode(false);
                     }}
                     className="ml-2 font-semibold text-white hover:text-aqua transition-colors underline decoration-white/30 underline-offset-4"
+                    disabled={isLoading}
                   >
                     {isLogin ? "Sign Up" : "Log In"}
                   </button>

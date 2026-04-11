@@ -14,6 +14,7 @@ function generateUsername() {
 }
 
 interface UserData {
+  id?: string
   username: string
   avatar: string
   joinedRooms: string[]
@@ -45,7 +46,7 @@ interface UserContextType {
   joinChallenge: (challengeId: string, totalDays: number) => void
   completeChallengeDay: (challengeId: string, day: number) => void
   clearAllData: () => void
-  initializeUser: (username: string, avatar: string) => void
+  initializeUser: (username: string, avatar: string, id?: string) => void
 }
 
 const UserContext = createContext<UserContextType | null>(null)
@@ -84,8 +85,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isLoaded])
 
-  const initializeUser = useCallback((username: string, avatar: string) => {
+  const initializeUser = useCallback((username: string, avatar: string, id?: string) => {
     const newUser: UserData = {
+      id,
       username,
       avatar,
       joinedRooms: [],
